@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>He or She? — The Gender Reveal of Nipa &amp; Pranit's Little One</title>
+<title>He or She? — The Gender Reveal of Pranit &amp; Nipa's Little One</title>
 <meta name="description" content="Sunday 25 October 2026 · 3 PM EST · Tyrone, Georgia. A little secret is waiting to be revealed, and we'd love to share the moment with you.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%B6%3C/text%3E%3C/svg%3E">
 
 <!-- link preview: WhatsApp, iMessage, Facebook, LinkedIn, Slack -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Nipa &amp; Pranit's Gender Reveal">
+<meta property="og:site_name" content="Pranit &amp; Nipa's Gender Reveal">
 <meta property="og:url" content="https://pranit-nipa.github.io/gender-reveal/">
-<meta property="og:title" content="He or She? — The Gender Reveal of Nipa &amp; Pranit's Little One">
+<meta property="og:title" content="He or She? — The Gender Reveal of Pranit &amp; Nipa's Little One">
 <meta property="og:description" content="Sunday 25 October 2026 · 3 PM EST · Tyrone, Georgia. A little secret is waiting to be revealed, and we'd love to share the moment with you.">
 <meta property="og:image" content="https://pranit-nipa.github.io/gender-reveal/preview.jpg">
 <meta property="og:image:secure_url" content="https://pranit-nipa.github.io/gender-reveal/preview.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="You are invited to the gender reveal of Nipa and Pranit's little one — Sunday 25 October 2026">
+<meta property="og:image:alt" content="You are invited to the gender reveal of Pranit and Nipa's little one — Sunday 25 October 2026">
 
 <!-- link preview: X / Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="He or She? — The Gender Reveal of Nipa &amp; Pranit's Little One">
+<meta name="twitter:title" content="He or She? — The Gender Reveal of Pranit &amp; Nipa's Little One">
 <meta name="twitter:description" content="Sunday 25 October 2026 · 3 PM EST · Tyrone, Georgia. A little secret is waiting to be revealed, and we'd love to share the moment with you.">
 <meta name="twitter:image" content="https://pranit-nipa.github.io/gender-reveal/preview.jpg">
 <link rel="image_src" href="https://pranit-nipa.github.io/gender-reveal/preview.jpg">
@@ -242,6 +242,12 @@ body{
   font-size:clamp(1.6rem,4.4vw,2.5rem);
   margin:.5rem 0 0; color:var(--ink); letter-spacing:.01em;
   text-wrap:balance; max-width:18ch; margin-inline:auto;
+  line-height:1.2;
+}
+/* "little one" sits under the names, quieter and smaller */
+.hosts .little{
+  display:block; font-size:.56em; color:var(--ink-2);
+  margin-top:.18em; letter-spacing:.03em;
 }
 .pre{font-size:.78rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3); margin:.9rem 0 0}
 .question{
@@ -534,6 +540,34 @@ select.inp option{background:#FFFCF5; color:var(--ink)}
 .qbox{border:1px solid var(--edge); padding:clamp(1.1rem,3.5vw,1.8rem); background:rgba(220,171,82,.09)}
 .qbox .qtitle{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:clamp(1.15rem,3vw,1.45rem); color:var(--ink); margin:0 0 .3rem; text-wrap:balance}
 .qbox .qsub{color:var(--ink-2); margin:0 0 1.2rem; font-size:.94rem}
+/* drink headcount: the two numbers always add up to the party size */
+.counts{display:grid; gap:.7rem}
+.count-row{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:.75rem 1rem; border:1px solid var(--edge-soft);
+  background:rgba(255,255,255,.5);
+}
+.count-label{font-size:.95rem; color:var(--ink)}
+.stepper{display:flex; align-items:center; gap:.55rem}
+.stepper .step{
+  width:2rem; height:2rem; flex:0 0 auto; cursor:pointer;
+  border:1px solid var(--edge); background:transparent; color:var(--pumpkin-lo);
+  font:400 1.1rem/1 var(--f-body); border-radius:50%;
+  display:grid; place-items:center;
+  transition:background .25s, color .25s, border-color .25s, transform .15s;
+}
+.stepper .step:hover:not(:disabled){background:var(--pumpkin); color:#FFF8EC; border-color:var(--pumpkin)}
+.stepper .step:active:not(:disabled){transform:scale(.92)}
+.stepper .step:disabled{opacity:.3; cursor:default}
+.stepper output{
+  min-width:1.6rem; text-align:center;
+  font-family:var(--f-display); font-weight:300; font-size:1.5rem;
+  color:var(--ink); font-variant-numeric:tabular-nums; line-height:1;
+}
+.count-note{
+  margin:.9rem 0 0; font-size:.76rem; letter-spacing:.06em; color:var(--ink-3);
+}
+
 .opts{display:grid; gap:.6rem}
 .opt{position:relative}
 .opt input{position:absolute; opacity:0; width:0; height:0}
@@ -787,7 +821,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
 
         <p class="namaste r" style="animation-delay:.46s" lang="hi">आपका हार्दिक स्वागत है</p>
         <p class="eyebrow long r" style="animation-delay:.5s">You are invited to the gender reveal of</p>
-        <h1 class="hosts r" style="animation-delay:.6s">Nipa &amp; Pranit's little one</h1>
+        <h1 class="hosts r" style="animation-delay:.6s">Pranit &amp; Nipa's<span class="little">little one</span></h1>
 
         <p class="question r foil" style="animation-delay:.78s">He or She<span class="qm">?</span></p>
 
@@ -1005,11 +1039,30 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
 
             <div class="qbox">
               <p class="qtitle">A little sip or a little skip? 🍼🥂</p>
-              <p class="qsub">Help us plan the drinks for the big day!</p>
-              <div class="opts">
-                <label class="opt"><input type="radio" name="drink" value="Sip sip hooray — drinking" checked><span>🥂 &nbsp;Sip sip hooray — I'll be drinking!</span></label>
-                <label class="opt"><input type="radio" name="drink" value="Baby-friendly sips — no alcohol"><span>🧃 &nbsp;Baby-friendly sips — no alcohol for me!</span></label>
+              <p class="qsub">Help us plan the drinks — how many in your party for each?</p>
+
+              <div class="counts">
+                <div class="count-row">
+                  <span class="count-label">🥂 &nbsp;Sip sip hooray</span>
+                  <span class="stepper">
+                    <button type="button" class="step" data-tgt="yes" data-delta="-1" aria-label="One fewer drinking">−</button>
+                    <output id="outYes" aria-live="polite">1</output>
+                    <button type="button" class="step" data-tgt="yes" data-delta="1" aria-label="One more drinking">+</button>
+                  </span>
+                </div>
+                <div class="count-row">
+                  <span class="count-label">🧃 &nbsp;Baby-friendly sips</span>
+                  <span class="stepper">
+                    <button type="button" class="step" data-tgt="no" data-delta="-1" aria-label="One fewer not drinking">−</button>
+                    <output id="outNo" aria-live="polite">0</output>
+                    <button type="button" class="step" data-tgt="no" data-delta="1" aria-label="One more not drinking">+</button>
+                  </span>
+                </div>
               </div>
+
+              <p class="count-note" id="countNote">Counting you, that's 1 in your party.</p>
+              <input type="hidden" name="drinkYes" id="drinkYes" value="1">
+              <input type="hidden" name="drinkNo" id="drinkNo" value="0">
             </div>
 
             <div>
@@ -1773,6 +1826,55 @@ var Confetti = (function(){
     else   { phoneErr.textContent='';  phoneErr.classList.remove('on'); phoneField.classList.remove('bad'); }
   }
 
+  /* ---- drink headcount ------------------------------------
+     Two numbers that always total the party size (you + guests),
+     so nudging one nudges the other. No arithmetic for the guest. */
+  var fYes = document.getElementById('drinkYes');
+  var fNo  = document.getElementById('drinkNo');
+  var oYes = document.getElementById('outYes');
+  var oNo  = document.getElementById('outNo');
+  var cNote = document.getElementById('countNote');
+  var guestsField = document.getElementById('f-guests');
+
+  function party(){
+    var g = parseInt(guestsField.value, 10);
+    if(isNaN(g) || g < 0) g = 0;
+    if(g > 3) g = 3;
+    return 1 + g;
+  }
+
+  function paintCounts(){
+    var p = party();
+    var yes = Math.max(0, Math.min(p, parseInt(fYes.value,10) || 0));
+    var no  = p - yes;
+    fYes.value = yes; fNo.value = no;
+    oYes.textContent = yes; oNo.textContent = no;
+
+    form.querySelectorAll('.step').forEach(function(b){
+      var t = b.dataset.tgt, dl = parseInt(b.dataset.delta,10);
+      var cur = (t === 'yes') ? yes : no;
+      b.disabled = (cur + dl < 0) || (cur + dl > p);
+    });
+
+    cNote.textContent = p === 1
+      ? "Counting you, that's 1 in your party."
+      : "Counting you, that's " + p + " in your party.";
+  }
+
+  form.addEventListener('click', function(ev){
+    var b = ev.target.closest ? ev.target.closest('.step') : null;
+    if(!b) return;
+    ev.preventDefault();
+    var d = parseInt(b.dataset.delta,10);
+    var yes = parseInt(fYes.value,10) || 0;
+    fYes.value = (b.dataset.tgt === 'yes') ? yes + d : yes - d;
+    paintCounts();
+  });
+
+  guestsField.addEventListener('input', paintCounts);
+  guestsField.addEventListener('change', paintCounts);
+  paintCounts();
+
   /* complain when they leave the field, forgive as soon as they fix it */
   phoneField.addEventListener('blur', function(){
     if(!phoneField.value.trim()) return showPhoneErr('');
@@ -1799,6 +1901,10 @@ var Confetti = (function(){
     if(isNaN(guests) || guests < 0) guests = 0;
     if(guests > 3) guests = 3;
     form.elements['guests'].value = guests;
+    paintCounts();
+
+    var yesN = parseInt(fYes.value,10) || 0;
+    var noN  = parseInt(fNo.value,10)  || 0;
 
     var payload={
       timestamp:new Date().toISOString(),
@@ -1806,7 +1912,9 @@ var Confetti = (function(){
       contact:ph.ok,
       attending:val('attending'),
       guests:String(guests),
-      drink:radio('drink'),
+      drink: yesN + ' drinking · ' + noN + ' not',
+      drinkYes: String(yesN),
+      drinkNo: String(noN),
       guess:radio('guessField'),
       babyName:val('babyname'),
       dietary:val('diet'),
@@ -1865,6 +1973,7 @@ var Confetti = (function(){
   again.addEventListener('click', function(){
     form.reset();
     showPhoneErr('');
+    fYes.value = 1; paintCounts();
     btn.disabled=false; btn.textContent='Send my RSVP';
     thanks.classList.remove('on');
     formView.style.display='';
