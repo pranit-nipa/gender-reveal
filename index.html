@@ -891,7 +891,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
             <button type="button" class="btn cal-toggle" aria-expanded="false" aria-haspopup="true">Add to calendar</button>
             <span class="cal-menu" hidden>
               <a class="cal-item cal-google" target="_blank" rel="noopener">Google Calendar</a>
-              <a class="cal-item cal-ics" download="pranit-nipa-gender-reveal.ics">Apple &middot; Outlook &middot; other</a>
+              <a class="cal-item cal-ics" href="invite.ics" type="text/calendar">Apple &middot; Outlook &middot; other</a>
             </span>
           </span>
         </div>
@@ -1188,7 +1188,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
               <button type="button" class="btn solid cal-toggle" aria-expanded="false" aria-haspopup="true">Add to calendar</button>
               <span class="cal-menu" hidden>
                 <a class="cal-item cal-google" target="_blank" rel="noopener">Google Calendar</a>
-                <a class="cal-item cal-ics" download="pranit-nipa-gender-reveal.ics">Apple &middot; Outlook &middot; other</a>
+                <a class="cal-item cal-ics" href="invite.ics" type="text/calendar">Apple &middot; Outlook &middot; other</a>
               </span>
             </span>
             <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=200+Glendalough+Ct%2C+Tyrone%2C+GA+30290" target="_blank" rel="noopener">Save the address</a>
@@ -1463,7 +1463,17 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
   var icsHref = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
 
   [].forEach.call(document.querySelectorAll('.cal-google'), function(a){ a.href = gcal; });
-  [].forEach.call(document.querySelectorAll('.cal-ics'),    function(a){ a.href = icsHref; });
+
+  /* The .ics is a real file next to this page — iOS Safari opens it straight
+     into Calendar, which a data: URL never does. Only when the page is opened
+     off disk (file://), where that sibling file may not resolve, do we fall
+     back to the generated data URL.                                          */
+  if(location.protocol !== 'http:' && location.protocol !== 'https:'){
+    [].forEach.call(document.querySelectorAll('.cal-ics'), function(a){
+      a.href = icsHref;
+      a.setAttribute('download', 'pranit-nipa-gender-reveal.ics');
+    });
+  }
 
   function closeAll(except){
     [].forEach.call(document.querySelectorAll('.cal'), function(c){
