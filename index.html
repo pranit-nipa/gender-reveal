@@ -300,6 +300,28 @@ body{
 .btn[disabled]{opacity:.55; cursor:default}
 :focus-visible{outline:2px solid var(--pumpkin); outline-offset:3px}
 
+/* --- add to calendar ---------------------------------------- */
+.cal{position:relative; display:inline-block}
+.cal-menu{
+  position:absolute; top:calc(100% + .55rem); left:50%;
+  transform:translateX(-50%);
+  display:grid; min-width:13rem; z-index:6;
+  background:var(--card); border:1px solid var(--edge);
+  box-shadow:0 20px 40px -24px rgba(90,60,25,.75);
+  animation:calin .22s ease-out;
+}
+.cal-menu[hidden]{display:none}
+@keyframes calin{from{opacity:0; transform:translateX(-50%) translateY(-5px)} to{opacity:1; transform:translateX(-50%)}}
+.cal-item{
+  display:block; padding:.8rem 1.1rem; text-align:left;
+  font-size:.86rem; color:var(--ink); text-decoration:none;
+  border-bottom:1px solid var(--edge-soft); cursor:pointer;
+  transition:background .2s, color .2s;
+}
+.cal-item:last-child{border-bottom:0}
+.cal-item:hover{background:rgba(196,104,44,.10); color:var(--pumpkin-lo)}
+.cal-toggle[aria-expanded="true"]{background:var(--pumpkin); color:#FFF8EC}
+
 /* ========================= COUNTDOWN ======================= */
 .count{padding:clamp(2.5rem,6vw,4.5rem) 0; text-align:center}
 .count h2{
@@ -852,6 +874,13 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
         <div class="cta r" style="animation-delay:1.2s">
           <a class="btn solid" href="#rsvp">RSVP</a>
           <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=200+Glendalough+Ct%2C+Tyrone%2C+GA+30290" target="_blank" rel="noopener">Directions</a>
+          <span class="cal">
+            <button type="button" class="btn cal-toggle" aria-expanded="false" aria-haspopup="true">Add to calendar</button>
+            <span class="cal-menu" hidden>
+              <a class="cal-item cal-google" target="_blank" rel="noopener">Google Calendar</a>
+              <a class="cal-item cal-ics" download="pranit-nipa-gender-reveal.ics">Apple &middot; Outlook &middot; other</a>
+            </span>
+          </span>
         </div>
       </div>
     </div>
@@ -1138,6 +1167,13 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
           <h2 class="foil">You're on the list</h2>
           <p id="thanksMsg">See you on the 25th. We'll have your drink ready.</p>
           <div class="cta">
+            <span class="cal">
+              <button type="button" class="btn solid cal-toggle" aria-expanded="false" aria-haspopup="true">Add to calendar</button>
+              <span class="cal-menu" hidden>
+                <a class="cal-item cal-google" target="_blank" rel="noopener">Google Calendar</a>
+                <a class="cal-item cal-ics" download="pranit-nipa-gender-reveal.ics">Apple &middot; Outlook &middot; other</a>
+              </span>
+            </span>
             <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=200+Glendalough+Ct%2C+Tyrone%2C+GA+30290" target="_blank" rel="noopener">Save the address</a>
             <a class="btn" href="https://www.amazon.com/baby-reg/nipa-das-january-2027-atlanta/2BGLLSFLCJVZ3" target="_blank" rel="noopener">The registry</a>
             <button class="btn" type="button" id="againBtn">RSVP for someone else</button>
@@ -1356,6 +1392,87 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
     for(var i=0;i<28;i++){ var l=make(true); l.vy*=2.1; l.y=-Math.random()*280; bits.push(l); }
     setTimeout(function(){ if(bits.length>62) bits.splice(0, bits.length-42); }, 9000);
   };
+})();
+
+/* ============================================================
+   1b. ADD TO CALENDAR
+       Sunday 25 October 2026, 3–5 PM Eastern (19:00–21:00 UTC).
+       Google gets a template URL; everyone else gets an .ics.
+   ============================================================ */
+(function(){
+  var TITLE = "Pranit & Nipa's Gender Reveal";
+  var PLACE = "200 Glendalough Ct, Tyrone, GA 30290";
+  var LINK  = "https://pranit-nipa.github.io/gender-reveal/";
+  var START = "20261025T190000Z";      /* 3:00 PM EDT */
+  var END   = "20261025T210000Z";      /* 5:00 PM EDT */
+  var BLURB = "He or She? Come find out with us.\n\n"
+            + "Dress code: neutrals only — ivory, cream, sand and beige. "
+            + "No pink and no blue.\n\n" + LINK;
+
+  var gcal = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + "&text="     + encodeURIComponent(TITLE)
+    + "&dates="    + START + "/" + END
+    + "&details="  + encodeURIComponent(BLURB)
+    + "&location=" + encodeURIComponent(PLACE)
+    + "&sprop="    + encodeURIComponent("website:" + LINK);
+
+  function esc(s){ return s.replace(/[\\;,]/g, function(c){ return '\\' + c; }).replace(/\n/g, '\\n'); }
+
+  var ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Pranit and Nipa//Gender Reveal//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    "UID:gender-reveal-20261025@pranit-nipa",
+    "DTSTAMP:" + START,
+    "DTSTART:" + START,
+    "DTEND:"   + END,
+    "SUMMARY:"     + esc(TITLE),
+    "LOCATION:"    + esc(PLACE),
+    "DESCRIPTION:" + esc(BLURB),
+    "URL:" + LINK,
+    "STATUS:CONFIRMED",
+    "BEGIN:VALARM",
+    "TRIGGER:-P1D",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:" + esc(TITLE) + " is tomorrow",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+
+  var icsHref = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+
+  [].forEach.call(document.querySelectorAll('.cal-google'), function(a){ a.href = gcal; });
+  [].forEach.call(document.querySelectorAll('.cal-ics'),    function(a){ a.href = icsHref; });
+
+  function closeAll(except){
+    [].forEach.call(document.querySelectorAll('.cal'), function(c){
+      if(c === except) return;
+      c.querySelector('.cal-menu').hidden = true;
+      c.querySelector('.cal-toggle').setAttribute('aria-expanded','false');
+    });
+  }
+
+  [].forEach.call(document.querySelectorAll('.cal'), function(cal){
+    var btn = cal.querySelector('.cal-toggle');
+    var menu = cal.querySelector('.cal-menu');
+    btn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var open = menu.hidden;
+      closeAll(cal);
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    menu.addEventListener('click', function(){
+      setTimeout(function(){ menu.hidden = true; btn.setAttribute('aria-expanded','false'); }, 120);
+    });
+  });
+
+  document.addEventListener('click', function(){ closeAll(null); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeAll(null); });
 })();
 
 /* ============================================================
