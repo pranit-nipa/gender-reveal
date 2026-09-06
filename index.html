@@ -60,6 +60,7 @@
   --f-body:"Karla","Helvetica Neue",Helvetica,Arial,sans-serif;
 
   --rule:1px solid var(--edge);
+  --frame:11px;          /* inset of the inner hairline, corner brackets and toran */
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -151,23 +152,29 @@ body{
   box-shadow:0 30px 60px -40px rgba(90,60,25,.45), 0 2px 0 rgba(255,255,255,.7) inset;
   animation:cardin 1s cubic-bezier(.2,.7,.3,1) backwards;
 }
-.card::before{content:""; position:absolute; inset:9px; border:1px solid var(--edge-soft); pointer-events:none}
+.card::before{content:""; position:absolute; inset:var(--frame); border:1px solid var(--edge-soft); pointer-events:none}
 /* everything written sits above the rangoli watermark */
 .card > p, .card > h1, .card > .datebar, .card > .cta, .card > .divider{position:relative; z-index:1}
-.corner{position:absolute; width:34px; height:34px; pointer-events:none; opacity:.9}
-.corner::before,.corner::after{content:""; position:absolute; background:var(--gold); opacity:.6}
-.corner::before{width:34px; height:1px}
-.corner::after{width:1px; height:34px}
-.c-tl{top:20px; left:20px}
-.c-tr{top:20px; right:20px}
-.c-tr::before{right:0} .c-tr::after{right:0}
-.c-bl{bottom:20px; left:20px}
-.c-bl::before{bottom:0} .c-bl::after{bottom:0}
-.c-br{bottom:20px; right:20px}
-.c-br::before{bottom:0;right:0} .c-br::after{bottom:0;right:0}
+/* Corner brackets sit exactly on the inner frame, the same distance in on
+   every side, so the double rule reads as one deliberate object. */
+.corner{position:absolute; width:32px; height:32px; pointer-events:none}
+.corner::before,.corner::after{content:""; position:absolute; background:var(--gold); opacity:.65}
+.corner::before{width:32px; height:1px; top:0; left:0}
+.corner::after {width:1px; height:32px; top:0; left:0}
+
+.c-tl{top:var(--frame); left:var(--frame)}
+.c-tr{top:var(--frame); right:var(--frame)}
+.c-tr::before,.c-tr::after{left:auto; right:0}
+.c-bl{bottom:var(--frame); left:var(--frame)}
+.c-bl::before,.c-bl::after{top:auto; bottom:0}
+.c-br{bottom:var(--frame); right:var(--frame)}
+.c-br::before,.c-br::after{top:auto; bottom:0; left:auto; right:0}
 
 /* --- toran: marigold garland along the card's top edge ----- */
-.toran{position:absolute; left:10px; right:10px; top:16px; height:40px; pointer-events:none; z-index:2}
+.toran{
+  position:absolute; left:var(--frame); right:var(--frame);
+  top:calc(var(--frame) + 9px); height:40px; pointer-events:none; z-index:2;
+}
 .toran .string{
   position:absolute; left:0; right:0; top:0; height:1px;
   background:linear-gradient(90deg,transparent,rgba(184,134,60,.55) 12%,rgba(184,134,60,.55) 88%,transparent);
@@ -1027,7 +1034,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
         <div class="note">
           <svg class="ico" aria-hidden="true"><use href="#ic-fork"></use></svg>
           <h3>What to expect</h3>
-          <p>Food, drinks, photos and the big reveal.</p>
+          <p>Food, drinks, photos and the <strong>BIG</strong> reveal.</p>
         </div>
         <div class="note">
           <svg class="ico" aria-hidden="true"><use href="#ic-pumpkin"></use></svg>
@@ -1093,7 +1100,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
                   <span class="count-label">🥂 &nbsp;Sip sip hooray <em>(alcohol)</em></span>
                   <span class="stepper">
                     <button type="button" class="step" data-tgt="yes" data-delta="-1" aria-label="One fewer drinking">−</button>
-                    <output id="outYes" aria-live="polite">1</output>
+                    <output id="outYes" aria-live="polite">0</output>
                     <button type="button" class="step" data-tgt="yes" data-delta="1" aria-label="One more drinking">+</button>
                   </span>
                 </div>
@@ -1101,15 +1108,15 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
                   <span class="count-label">🧃 &nbsp;Baby-friendly sips</span>
                   <span class="stepper">
                     <button type="button" class="step" data-tgt="no" data-delta="-1" aria-label="One fewer not drinking">−</button>
-                    <output id="outNo" aria-live="polite">0</output>
+                    <output id="outNo" aria-live="polite">1</output>
                     <button type="button" class="step" data-tgt="no" data-delta="1" aria-label="One more not drinking">+</button>
                   </span>
                 </div>
               </div>
 
               <p class="count-note" id="countNote">Counting you, that's 1 in your party.</p>
-              <input type="hidden" name="drinkYes" id="drinkYes" value="1">
-              <input type="hidden" name="drinkNo" id="drinkNo" value="0">
+              <input type="hidden" name="drinkYes" id="drinkYes" value="0">
+              <input type="hidden" name="drinkNo" id="drinkNo" value="1">
             </div>
 
             <div>
@@ -2118,7 +2125,7 @@ var Confetti = (function(){
   again.addEventListener('click', function(){
     form.reset();
     showPhoneErr('');
-    fYes.value = 1; paintCounts();
+    fYes.value = 0; paintCounts();   /* everyone starts non-alcoholic */
     btn.disabled=false; btn.textContent='Send my RSVP';
     thanks.classList.remove('on');
     formView.style.display='';
