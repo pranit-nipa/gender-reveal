@@ -693,6 +693,30 @@ select.inp option{background:#FFFCF5; color:var(--ink)}
 .thanks h2{font-family:var(--f-display); font-weight:300; font-size:clamp(2rem,6vw,3rem); margin:1rem 0 .6rem}
 .thanks p{color:var(--ink-2); max-width:36ch; margin:0 auto}
 
+/* the private link back into your own RSVP */
+.editbox{
+  margin:2rem auto 0; max-width:34rem; padding:1.4rem 1.2rem;
+  border:1px solid var(--edge); background:rgba(220,171,82,.09);
+}
+.editbox[hidden]{display:none}
+.editbox-lead{margin:0 auto .9rem !important; font-size:.9rem; max-width:44ch !important}
+.editlink{margin:0 !important; max-width:none !important}
+.editlink a{
+  display:block; word-break:break-all; color:var(--pumpkin-lo);
+  font-size:.82rem; line-height:1.6; text-decoration:none;
+  border-bottom:1px solid var(--edge-soft); padding-bottom:.5rem;
+}
+.editlink a:hover{color:var(--pumpkin)}
+
+/* the RSVP form in "editing an existing reply" mode */
+.editing .form-head h2::after{content:""}
+.edit-banner{
+  margin:0 auto 1.6rem; max-width:40ch; padding:.8rem 1rem;
+  border:1px solid var(--edge); background:rgba(220,171,82,.12);
+  font-size:.88rem; color:var(--ink-2);
+}
+.edit-banner[hidden]{display:none}
+
 /* ========================== FOOTER ========================= */
 footer{padding:clamp(2.5rem,6vw,4rem) 0 4rem; text-align:center}
 footer .sig{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:clamp(1.4rem,4vw,2rem); color:var(--ink); margin:1.2rem 0 .6rem}
@@ -892,7 +916,6 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
         </p>
 
         <div class="cta r" style="animation-delay:1.2s">
-          <a class="btn solid" href="#rsvp">RSVP</a>
           <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=200+Glendalough+Ct%2C+Tyrone%2C+GA+30290" target="_blank" rel="noopener">Directions</a>
           <span class="cal">
             <button type="button" class="btn cal-toggle" aria-expanded="false" aria-haspopup="true">Add to calendar</button>
@@ -1052,8 +1075,9 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
 
         <div id="formView">
           <div class="form-head">
+            <p class="edit-banner" id="editBanner" hidden>We found your reply and filled it in below. Change whatever you like, then send it again.</p>
             <p class="eyebrow">The important part</p>
-            <h2 class="foil">We would love to celebrate with you</h2>
+            <h2 class="foil" id="formTitle">We would love to celebrate with you</h2>
           </div>
 
           <form id="rsvpForm" class="fields" novalidate>
@@ -1069,6 +1093,15 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
                        aria-describedby="phoneErr" required>
                 <p class="field-err" id="phoneErr" aria-live="polite"></p>
               </div>
+            </div>
+
+            <div>
+              <label class="lbl" for="f-email">Email</label>
+              <input class="inp" id="f-email" name="email" type="email" inputmode="email"
+                     autocomplete="email" placeholder="you@example.com"
+                     aria-describedby="emailHint">
+              <p class="field-err" id="emailErr" aria-live="polite"></p>
+              <p class="hint" id="emailHint">We'll send your confirmation, the calendar invite, and a link to change your reply later.</p>
             </div>
 
             <div class="row2">
@@ -1188,8 +1221,18 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
               <svg class="leaf" aria-hidden="true"><use href="#ic-leaf"></use></svg>
             </span>
           </div>
-          <h2 class="foil">You're on the list</h2>
+          <h2 class="foil" id="thanksTitle">You're on the list</h2>
           <p id="thanksMsg">See you on the 25th. We'll have your drink ready.</p>
+
+          <div class="editbox" id="editBox" hidden>
+            <p class="editbox-lead">Need to change something later? This link is yours &mdash; it reopens your reply.</p>
+            <p class="editlink"><a id="editUrl" href="#"></a></p>
+            <div class="cta" style="margin-top:1.1rem">
+              <button type="button" class="btn" id="copyEdit">Copy my link</button>
+              <a class="btn" id="smsSelf" href="#">Text it to myself</a>
+            </div>
+            <p class="hint" id="copyNote" style="text-align:center"></p>
+          </div>
           <div class="cta">
             <span class="cal">
               <button type="button" class="btn solid cal-toggle" aria-expanded="false" aria-haspopup="true">Add to calendar</button>
@@ -1420,7 +1463,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
 
 /* ============================================================
    1b. ADD TO CALENDAR
-       Sunday 25 October 2026, 3–5 PM Eastern (19:00–21:00 UTC).
+       Sunday 25 October 2026, 3–8 PM Eastern (19:00–00:00 UTC).
        Google gets a template URL; everyone else gets an .ics.
    ============================================================ */
 (function(){
@@ -1428,7 +1471,7 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
   var PLACE = "200 Glendalough Ct, Tyrone, GA 30290";
   var LINK  = "https://pranit-nipa.github.io/gender-reveal/";
   var START = "20261025T190000Z";      /* 3:00 PM EDT */
-  var END   = "20261025T210000Z";      /* 5:00 PM EDT */
+  var END   = "20261026T000000Z";      /* 8:00 PM EDT — midnight UTC, next day */
   var BLURB = "He or She? Come find out with us.\n\n"
             + "Dress code: neutrals only — ivory, cream, sand and beige. "
             + "No pink and no blue.\n\n" + LINK;
@@ -1978,6 +2021,42 @@ var Confetti = (function(){
     else   { phoneErr.textContent='';  phoneErr.classList.remove('on'); phoneField.classList.remove('bad'); }
   }
 
+  /* ---- email ----------------------------------------------
+     Optional, but it is how the confirmation and the edit link
+     reach them, so it is worth checking the shape.            */
+  var emailField = document.getElementById('f-email');
+  var emailErr   = document.getElementById('emailErr');
+
+  function checkEmail(raw){
+    var s = String(raw||'').trim();
+    if(!s) return {ok:''};                                  /* blank is allowed */
+    if(!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(s)) return {err:'That does not look like an email address.'};
+    return {ok:s};
+  }
+  function showEmailErr(msg){
+    if(msg){ emailErr.textContent=msg; emailErr.classList.add('on'); emailField.classList.add('bad'); }
+    else   { emailErr.textContent='';  emailErr.classList.remove('on'); emailField.classList.remove('bad'); }
+  }
+  emailField.addEventListener('blur', function(){
+    var r=checkEmail(emailField.value);
+    if(r.err) showEmailErr(r.err); else { showEmailErr(''); if(r.ok) emailField.value=r.ok; }
+  });
+  emailField.addEventListener('input', function(){
+    if(emailField.classList.contains('bad') && !checkEmail(emailField.value).err) showEmailErr('');
+  });
+
+  /* ---- the edit token -------------------------------------
+     One per reply. Made here, stored in the sheet, and handed
+     back in the link so the same row can be rewritten.        */
+  var editToken = null;
+
+  function newToken(){
+    return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+  function editUrlFor(t){
+    return location.origin + location.pathname + '?e=' + encodeURIComponent(t);
+  }
+
   /* ---- drink headcount ------------------------------------
      Two numbers that always total the party size (you + guests),
      so nudging one nudges the other. No arithmetic for the guest. */
@@ -2049,6 +2128,10 @@ var Confetti = (function(){
     showPhoneErr('');
     phoneField.value = ph.ok;
 
+    var em=checkEmail(val('email'));
+    if(em.err){ showEmailErr(em.err); emailField.focus(); return; }
+    showEmailErr('');
+
     var guests = parseInt(val('guests'), 10);
     if(isNaN(guests) || guests < 0) guests = 0;
     if(guests > 3) guests = 3;
@@ -2058,10 +2141,14 @@ var Confetti = (function(){
     var yesN = parseInt(fYes.value,10) || 0;
     var noN  = parseInt(fNo.value,10)  || 0;
 
+    if(!editToken) editToken = newToken();
+
     var payload={
       timestamp:new Date().toISOString(),
+      token:editToken,
       name:name,
       contact:ph.ok,
+      email:em.ok || '',
       attending:val('attending'),
       guests:String(guests),
       drink: yesN + ' drinking · ' + noN + ' not',
@@ -2073,7 +2160,7 @@ var Confetti = (function(){
       note:val('note')
     };
 
-    btn.disabled=true; btn.textContent='Sending…';
+    btn.disabled=true; btn.textContent = isEditing ? 'Updating…' : 'Sending…';
 
     dbReady.then(function(db){
       var toSheet = postToSheet(payload);
@@ -2107,14 +2194,30 @@ var Confetti = (function(){
         setTimeout(window.__refreshTally, 7000);
       }
       var yes = payload.attending.indexOf('Yes')===0;
+      var first = name.split(' ')[0];
+
+      document.getElementById('thanksTitle').textContent =
+        isEditing ? 'Your RSVP is updated' : (yes ? "You're on the list" : 'Thank you for telling us');
+
       thanksMsg.textContent = yes
-        ? 'See you on the 25th, ' + name.split(' ')[0] + '. We will have your drink ready.'
-        : 'Thanks for letting us know, ' + name.split(' ')[0] + '. We will send you a photo the second it happens.';
+        ? 'See you on the 25th, ' + first + '.' + (payload.email ? ' A confirmation is on its way to your inbox.' : '')
+        : 'Thanks for letting us know, ' + first + '. We will send you a photo the second it happens.';
+
+      /* hand them the way back into their own reply */
+      var url = editUrlFor(editToken);
+      var link = document.getElementById('editUrl');
+      link.href = url; link.textContent = url;
+      document.getElementById('smsSelf').href =
+        'sms:?&body=' + encodeURIComponent(
+          "Pranit & Nipa's gender reveal — Sun 25 Oct, 3–8 PM, "
+          + "200 Glendalough Ct, Tyrone GA 30290. My RSVP: " + url);
+      document.getElementById('editBox').hidden = false;
+
       formView.style.display='none';
       thanks.classList.add('on');
       thanks.scrollIntoView({behavior:'smooth', block:'center'});
     }).catch(function(err){
-      btn.disabled=false; btn.textContent='Send my RSVP';
+      btn.disabled=false; btn.textContent = isEditing ? 'Update my RSVP' : 'Send my RSVP';
       status.className='status err';
       status.textContent = (err && err.message==='nowhere')
         ? 'We could not save that — the RSVP form is not connected yet. Please text us instead.'
@@ -2122,9 +2225,71 @@ var Confetti = (function(){
     });
   });
 
+  /* ---- arriving on an edit link ---------------------------
+     ?e=TOKEN asks the sheet for that reply and fills the form. */
+  var banner = document.getElementById('editBanner');
+  var isEditing = false;
+
+  document.getElementById('copyEdit').addEventListener('click', function(){
+    var url = document.getElementById('editUrl').href;
+    var note = document.getElementById('copyNote');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(
+        function(){ note.textContent = 'Copied.'; },
+        function(){ note.textContent = 'Copy it from the line above.'; });
+    } else {
+      note.textContent = 'Copy it from the line above.';
+    }
+  });
+
+  (function(){
+    var m = /[?&]e=([^&#]+)/.exec(location.search);
+    if(!m || !SHEET_ENDPOINT) return;
+    var token = decodeURIComponent(m[1]);
+
+    var cb = '__rsvp' + Date.now().toString(36);
+    window[cb] = function(d){
+      try{ delete window[cb]; }catch(e){ window[cb] = undefined; }
+      if(!d || !d.ok) return;
+
+      editToken = token;
+      isEditing = true;
+
+      form.elements['name'].value    = d.name || '';
+      phoneField.value               = d.contact || '';
+      emailField.value               = d.email || '';
+      if(d.attending) form.elements['attending'].value = d.attending;
+      guestsField.value              = String(parseInt(d.guests,10) || 0);
+      fYes.value                     = parseInt(d.drinkYes,10) || 0;
+      paintCounts();
+
+      var g = form.querySelector('input[name="guessField"][value="' + (d.guess||'Boy') + '"]');
+      if(g){ g.checked = true; g.dispatchEvent(new Event('change', {bubbles:true})); }
+
+      form.elements['babyname'].value = d.babyName || '';
+      form.elements['diet'].value     = d.dietary  || '';
+      form.elements['note'].value     = d.note     || '';
+
+      banner.hidden = false;
+      document.getElementById('formTitle').textContent = 'Update your RSVP';
+      btn.textContent = 'Update my RSVP';
+      document.getElementById('rsvp').scrollIntoView({behavior:'smooth', block:'start'});
+    };
+
+    var s = document.createElement('script');
+    s.src = SHEET_ENDPOINT + (SHEET_ENDPOINT.indexOf('?')<0?'?':'&')
+          + 'action=get&token=' + encodeURIComponent(token)
+          + '&callback=' + cb + '&t=' + Date.now();
+    s.onerror = function(){};
+    (document.head || document.body).appendChild(s);
+  })();
+
   again.addEventListener('click', function(){
     form.reset();
-    showPhoneErr('');
+    showPhoneErr(''); showEmailErr('');
+    editToken = null; isEditing = false;
+    document.getElementById('editBox').hidden = true;
+    banner.hidden = true;
     fYes.value = 0; paintCounts();   /* everyone starts non-alcoholic */
     btn.disabled=false; btn.textContent='Send my RSVP';
     thanks.classList.remove('on');
