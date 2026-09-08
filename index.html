@@ -717,6 +717,43 @@ select.inp option{background:#FFFCF5; color:var(--ink)}
 }
 .edit-banner[hidden]{display:none}
 
+/* ========================== MUSIC ========================== */
+.music{
+  position:fixed; right:clamp(.9rem,3vw,1.6rem); bottom:clamp(.9rem,3vw,1.6rem);
+  z-index:55; width:3rem; height:3rem; border-radius:50%; cursor:pointer;
+  display:grid; place-items:center; padding:0;
+  background:var(--card); border:1px solid var(--edge);
+  color:var(--pumpkin-lo);
+  box-shadow:0 12px 26px -14px rgba(90,60,25,.7);
+  transition:background .3s, color .3s, transform .2s, border-color .3s;
+}
+.music:hover{transform:translateY(-2px); border-color:var(--pumpkin)}
+.music:active{transform:translateY(0) scale(.95)}
+.music svg{width:18px; height:18px; display:block}
+.music .off{display:none}
+.music[aria-pressed="false"]{color:var(--ink-3)}
+.music[aria-pressed="false"] .on{display:none}
+.music[aria-pressed="false"] .off{display:block}
+
+/* three bars that dance only while sound is actually coming out */
+.music-wave{
+  position:absolute; bottom:.42rem; left:50%; transform:translateX(-50%);
+  display:none; align-items:flex-end; gap:2px; height:6px;
+}
+.music.playing .music-wave{display:flex}
+.music.playing .music-ico{transform:translateY(-3px)}
+.music-ico{transition:transform .3s}
+.music-wave i{
+  width:2px; background:var(--pumpkin); border-radius:1px;
+  animation:eq .9s ease-in-out infinite;
+}
+.music-wave i:nth-child(1){height:3px; animation-delay:0s}
+.music-wave i:nth-child(2){height:6px; animation-delay:.15s}
+.music-wave i:nth-child(3){height:4px; animation-delay:.3s}
+@keyframes eq{0%,100%{transform:scaleY(.45)} 50%{transform:scaleY(1)}}
+
+@media (prefers-reduced-motion:reduce){ .music-wave i{animation:none} }
+
 /* ========================== FOOTER ========================= */
 footer{padding:clamp(2.5rem,6vw,4rem) 0 4rem; text-align:center}
 footer .sig{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:clamp(1.4rem,4vw,2rem); color:var(--ink); margin:1.2rem 0 .6rem}
@@ -1294,6 +1331,15 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
     </div>
   </section>
 
+  <button type="button" class="music" id="musicBtn" aria-pressed="true"
+          aria-label="Turn the music off" title="Music">
+    <span class="music-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" class="on"><g fill="currentColor"><circle cx="7" cy="17.5" r="3"/><circle cx="17.5" cy="15" r="3"/><path d="M9 17.5V7.2l11.5-2.6v10.4h-3V8.3L11 9.7v7.8z"/></g></svg>
+      <svg viewBox="0 0 24 24" class="off"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke-linejoin="round"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></g></svg>
+    </span>
+    <span class="music-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+
   <footer>
     <div class="wrap">
       <div class="divider">
@@ -1313,6 +1359,178 @@ footer .meta{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; c
 </div>
 
 <script>
+/* ============================================================
+   0a. A MUSIC BOX
+       Synthesised note by note in the browser — no audio file,
+       nothing to license, about 3 kB of code instead of 3 MB.
+       Browsers refuse to start sound before someone touches the
+       page, so it begins on the first tap, click, key or scroll.
+   ============================================================ */
+(function(){
+  var btn = document.getElementById('musicBtn');
+  if(!btn || !(window.AudioContext || window.webkitAudioContext)) {
+    if(btn) btn.remove();
+    return;
+  }
+
+  var STORE = 'pn-music';
+  var wanted = true;                       /* on unless they turned it off before */
+  try { if(localStorage.getItem(STORE) === 'off') wanted = false; } catch(e){}
+
+  var ctx = null, master = null, timer = null, started = false;
+  var step = 0, nextTime = 0;
+
+  var BPM   = 60;
+  var EIGHTH = 30 / BPM;                   /* seconds per eighth note */
+
+  /* Fmaj7 — Dm7 — B♭maj7 — Cadd9 : warm, unhurried, loops cleanly */
+  var CHORDS = [
+    [53, 57, 60, 64],
+    [50, 53, 57, 60],
+    [46, 50, 53, 57],
+    [48, 52, 55, 62]
+  ];
+  var ARP = [0, 2, 1, 3, 2, 1, 2, 3];
+  var OCT = [0, 0, 12, 0, 12, 0, 0, 12];
+
+  function hz(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
+
+  /* one struck tine: bright attack, long soft decay */
+  function pluck(midi, at, vel){
+    var f = hz(midi);
+    var g = ctx.createGain();
+    g.connect(master);
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(vel, at + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 2.4);
+
+    var o1 = ctx.createOscillator();
+    o1.type = 'sine'; o1.frequency.value = f;
+    o1.connect(g);
+
+    var o2 = ctx.createOscillator();       /* octave shimmer, quieter */
+    o2.type = 'sine'; o2.frequency.value = f * 2;
+    var g2 = ctx.createGain(); g2.gain.value = 0.18;
+    o2.connect(g2); g2.connect(g);
+
+    o1.start(at); o2.start(at);
+    o1.stop(at + 2.5); o2.stop(at + 2.5);
+  }
+
+  /* a breath of warmth under the notes, one per bar */
+  function pad(root, at){
+    var g = ctx.createGain(); g.connect(master);
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(0.05, at + 1.2);
+    g.gain.linearRampToValueAtTime(0.0001, at + EIGHTH * 8);
+    [0, 7].forEach(function(iv, i){
+      var o = ctx.createOscillator();
+      o.type = 'triangle';
+      o.frequency.value = hz(root - 12 + iv);
+      o.detune.value = i ? 4 : -4;
+      o.connect(g);
+      o.start(at); o.stop(at + EIGHTH * 8 + 0.2);
+    });
+  }
+
+  function schedule(){
+    while(nextTime < ctx.currentTime + 0.3){
+      var bar   = Math.floor(step / 8) % CHORDS.length;
+      var beat  = step % 8;
+      var chord = CHORDS[bar];
+
+      if(beat === 0) pad(chord[0], nextTime);
+
+      var midi = chord[ARP[beat]] + OCT[beat];
+      var vel  = (beat === 0 ? 0.30 : beat % 2 ? 0.15 : 0.22) *
+                 (0.9 + Math.random() * 0.2);
+      pluck(midi, nextTime, vel);
+
+      /* a small grace note now and then, so it never feels mechanical */
+      if(beat === 5 && Math.random() < 0.5){
+        pluck(chord[3] + 12, nextTime + EIGHTH * 0.5, 0.09);
+      }
+
+      nextTime += EIGHTH;
+      step++;
+    }
+  }
+
+  function build(){
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain();
+    master.gain.value = 0.0001;
+    var soft = ctx.createBiquadFilter();   /* takes the glassy edge off */
+    soft.type = 'lowpass';
+    soft.frequency.value = 2600;
+    master.connect(soft);
+    soft.connect(ctx.destination);
+  }
+
+  function start(){
+    if(started || !wanted) return;
+    if(!ctx) build();
+    ctx.resume().then(function(){
+      if(ctx.state !== 'running') return;   /* still blocked — wait for a gesture */
+      started = true;
+      nextTime = ctx.currentTime + 0.1;
+      master.gain.cancelScheduledValues(ctx.currentTime);
+      master.gain.setValueAtTime(0.0001, ctx.currentTime);
+      master.gain.exponentialRampToValueAtTime(0.13, ctx.currentTime + 2.5);
+      schedule();
+      timer = setInterval(schedule, 60);
+      btn.classList.add('playing');
+    }).catch(function(){});
+  }
+
+  function stop(fade){
+    if(!started) return;
+    started = false;
+    clearInterval(timer);
+    btn.classList.remove('playing');
+    if(ctx && master){
+      var t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(master.gain.value, t);
+      master.gain.exponentialRampToValueAtTime(0.0001, t + (fade || 0.6));
+    }
+  }
+
+  function paint(){
+    btn.setAttribute('aria-pressed', wanted ? 'true' : 'false');
+    btn.setAttribute('aria-label', wanted ? 'Turn the music off' : 'Turn the music on');
+    btn.title = wanted ? 'Music on' : 'Music off';
+  }
+
+  btn.addEventListener('click', function(){
+    wanted = !wanted;
+    try { localStorage.setItem(STORE, wanted ? 'on' : 'off'); } catch(e){}
+    paint();
+    if(wanted) start(); else stop();
+  });
+
+  /* try immediately; most browsers will refuse until a gesture arrives */
+  paint();
+  if(wanted){
+    start();
+    var kick = function(){
+      start();
+      if(started) ['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){
+        window.removeEventListener(ev, kick);
+      });
+    };
+    ['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){
+      window.addEventListener(ev, kick, {passive:true});
+    });
+  }
+
+  /* hush while the tab is in the background */
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) stop(0.3);
+    else if(wanted) start();
+  });
+})();
+
 /* ============================================================
    0. THE TORAN — marigolds and leaves strung across the card
    ============================================================ */
